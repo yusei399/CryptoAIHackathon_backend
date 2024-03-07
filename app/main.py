@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
+from functions import predict_features
 
 app = FastAPI()
 
@@ -24,5 +25,8 @@ def create_recommendation(audio: UploadFile = File(...)):
 
 
 @app.post("/api/v1/recommendations2")
-def music_recommendations(audio: UploadFile = File(...)):
-    return JSONResponse(content={"music_id": "0kdqcbwei4MDWFEX5f33yG"})
+async def create_upload_files(file: UploadFile = File(...)):
+
+    input_audio_features = await predict_features(file)
+    print(input_audio_features)
+    return {"message":"CryptoAIHackathon_backend"}

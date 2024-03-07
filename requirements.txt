@@ -9,3 +9,4 @@ requests
 tensorflow
 tensorflow_hub
 joblib
+scipy

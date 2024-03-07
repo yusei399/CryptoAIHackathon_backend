@@ -3,22 +3,26 @@ import tensorflow_hub as hub
 import numpy as np
 from scipy.io import wavfile
 import requests
+from pydub import AudioSegment
+import io
 
 # YAMNetモデルのロード
 yamnet_model = hub.load('https://tfhub.dev/google/yamnet/1')
 
 # モデルの読み込み
-model = load('music_recommendation_model.joblib')
+#model = load('music_recommendation_model.joblib')
 
-def download_and_predict_features(url):
-    response = requests.get(url)
-    with open('temp_music_preview.wav', 'wb') as f:
-        f.write(response.content)
-    
+async def predict_features(file):
+    file_contents = await file.read()
+    # MP3からWAVへの変換
+    sound = AudioSegment.from_file(io.BytesIO(file_contents), format=file.filename.split('.')[-1])
+    temp_wav_path = 'temp_music_preview.wav'
+    sound.export(temp_wav_path, format="wav")
+
     # WAVファイルの読み込み
-    sample_rate, wav_data = wavfile.read('temp_music_preview.wav', 'rb')
+    sample_rate, wav_data = wavfile.read(temp_wav_path)
     waveform = np.mean(wav_data, axis=1)  # ステレオからモノラルに変換
-    waveform = waveform / tf.int16.max  # 正規化
+    waveform = waveform / np.iinfo(wav_data.dtype).max  # 正規化
 
     # 特徴量の抽出
     _, embeddings, _ = yamnet_model(waveform)

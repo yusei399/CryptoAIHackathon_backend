@@ -1,6 +1,9 @@
 # Pythonのベースイメージを使用
 FROM python:3.9
 
+RUN apt-get update \
+    && apt-get install -y ffmpeg
+
 # 作業ディレクトリを設定
 WORKDIR /app
 

@@ -4,3 +4,8 @@ python-multipart
 spotipy
 pydub
 numpy
+python-dotenv
+requests
+tensorflow
+tensorflow_hub
+joblib

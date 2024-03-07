@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 @app.get("/")
-def top():
+def root():
     return {"message":"CryptoAIHackathon_backend"}
 
 @app.post("/api/v1/recommendations")
@@ -21,3 +21,8 @@ def create_recommendation(audio: UploadFile = File(...)):
 
     # 音楽IDをレスポンスとして返す
     return JSONResponse(content={"music_id": music_id})
+
+
+@app.post("/api/v1/recommendations2")
+def music_recommendations(audio: UploadFile = File(...)):
+    return JSONResponse(content={"music_id": "0kdqcbwei4MDWFEX5f33yG"})

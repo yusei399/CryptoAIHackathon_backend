@@ -10,7 +10,7 @@ def create_recommendation(audio: UploadFile = File(...)):
     def process_audio(audio_file):
         # ここに音声データの処理ロジックを実装
         # 今回はダミーの音楽IDを返します
-        return "dummy_music_id"
+        return "0kdqcbwei4MDWFEX5f33yG"
 
     # 音声ファイルを処理
     music_id = process_audio(audio.file.read())

@@ -3,6 +3,10 @@ from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
+@app.get("/")
+def top():
+    return {"message":"CryptoAIHackathon_backend"}
+
 @app.post("/api/v1/recommendations")
 def create_recommendation(audio: UploadFile = File(...)):
     # 音声データを処理するためのダミー関数

@@ -4,6 +4,8 @@ FROM python:3.9
 # 作業ディレクトリを設定
 WORKDIR /app
 
+RUN pip install --upgrade pip
+
 # 依存関係ファイルをコピー
 COPY requirements.txt .
 

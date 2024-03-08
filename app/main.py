@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from functions import (predict_features, predict_attributes, recommend_music)
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 

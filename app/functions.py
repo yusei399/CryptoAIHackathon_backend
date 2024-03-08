@@ -5,12 +5,25 @@ from scipy.io import wavfile
 import requests
 from pydub import AudioSegment
 import io
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+from env import(CLIENT_ID, CLIENT_SECRET)
+from joblib import load
+import sklearn
 
 # YAMNetモデルのロード
 yamnet_model = hub.load('https://tfhub.dev/google/yamnet/1')
 
-# モデルの読み込み
-#model = load('music_recommendation_model.joblib')
+model_danceability = load('model/danceability_model.joblib')
+model_energy = load('model/energy_model.joblib')
+model_valence = load('model/valence_model.joblib')
+
+client_id = CLIENT_ID
+client_secret = CLIENT_SECRET
+
+credentials = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+sp = spotipy.Spotify(client_credentials_manager=credentials)
+
 
 async def predict_features(file):
     file_contents = await file.read()
@@ -28,36 +41,32 @@ async def predict_features(file):
     _, embeddings, _ = yamnet_model(waveform)
     return embeddings.numpy()
 
+
+def predict_attributes(input_audio_features):
+    input_audio_features_averaged = np.mean(input_audio_features, axis=0)
+    input_audio_features_averaged_2d = np.expand_dims(input_audio_features_averaged, axis=0)
+    predicted_danceability = model_danceability.predict(input_audio_features_averaged_2d)[0]
+    predicted_energy = model_energy.predict(input_audio_features_averaged_2d)[0]
+    predicted_valence = model_valence.predict(input_audio_features_averaged_2d)[0]
+    predicted_attributes = {'danceability': predicted_danceability, 'energy': predicted_energy, 'valence': predicted_valence}
+    return predicted_attributes
+
+
 # Spotify APIを使用して音楽を検索し、推薦する関数
-def recommend_music(sp, music_attributes, limit=10):
+def recommend_music(predicted_attributes):
     """
     Spotify APIを使用して音楽を検索し、推薦する関数。類似度スコアを含む。
     """
-    # マッピングされた音楽属性をクエリに変換
-    query = ' '.join(f'{key}:{value}' for key, value in music_attributes.items())
-
-    # Spotify APIで音楽を検索
-    results = sp.search(q=query, limit=limit, type='track')
-
-    # 検索結果からトラック情報を抽出
-    tracks = results['tracks']['items']
-    recommended_tracks = []
-    for track in tracks:
-        # トラックの音楽属性を取得
-        track_features = sp.audio_features(track['id'])[0]
-
-        # 類似度スコアの計算（ユークリッド距離の逆数を使用）
-        similarity_score = 1 / (1 + sum((music_attributes[key] - track_features[key])**2 for key in music_attributes))
-
-        track_info = {
-            'id': track['id'],
-            'name': track['name'],
-            'artists': ', '.join(artist['name'] for artist in track['artists']),
-            'url': track['external_urls']['spotify'],
-            'similarity_score': similarity_score
-        }
-        recommended_tracks.append(track_info)
-
-    # 類似度スコアでソートして返す
-    recommended_tracks.sort(key=lambda x: x['similarity_score'], reverse=True)
-    return recommended_tracks
+    # 検索条件を設定
+    market = "JP"  # 市場を指定（例：米国）
+    limit = 1  # 返される曲の数
+    
+    # 曲を検索
+    results = sp.recommendations(seed_genres=['j-pop'],  # 例としてジャンルをpopに設定
+                                target_danceability=predicted_attributes['danceability'],
+                                target_energy=predicted_attributes['energy'],
+                                target_valence=predicted_attributes['valence'],
+                                limit=limit,
+                                market=market)
+    track_ids = [track['id'] for track in results['tracks']]
+    return track_ids

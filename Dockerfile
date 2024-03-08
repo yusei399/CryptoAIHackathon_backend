@@ -1,12 +1,14 @@
 # Pythonのベースイメージを使用
 FROM python:3.9
 
+# 音声ファイル変換用のffmegをインストール
 RUN apt-get update \
     && apt-get install -y ffmpeg
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
+# pipをアップグレード
 RUN pip install --upgrade pip
 
 # 依存関係ファイルをコピー

@@ -1,4 +1,4 @@
-# バックエンド
+# MoodTuneのバックエンド
 make build
 
 make up

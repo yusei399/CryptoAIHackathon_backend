@@ -11,18 +11,18 @@ from env import(CLIENT_ID, CLIENT_SECRET)
 from joblib import load
 import sklearn
 
-# YAMNetモデルのロード
-yamnet_model = hub.load('https://tfhub.dev/google/yamnet/1')
-
-model_danceability = load('model/danceability_model.joblib')
-model_energy = load('model/energy_model.joblib')
-model_valence = load('model/valence_model.joblib')
-
+# Spotify認証
 client_id = CLIENT_ID
 client_secret = CLIENT_SECRET
 
 credentials = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=credentials)
+
+# モデルのロード
+yamnet_model = hub.load('https://tfhub.dev/google/yamnet/1')
+model_danceability = load('model/danceability_model.joblib')
+model_energy = load('model/energy_model.joblib')
+model_valence = load('model/valence_model.joblib')
 
 
 async def predict_features(file):
@@ -54,14 +54,10 @@ def predict_attributes(input_audio_features):
 
 # Spotify APIを使用して音楽を検索し、推薦する関数
 def recommend_music(predicted_attributes):
-    """
-    Spotify APIを使用して音楽を検索し、推薦する関数。類似度スコアを含む。
-    """
     # 検索条件を設定
     market = "JP"  # 市場を指定（例：米国）
     limit = 1  # 返される曲の数
     
-    # 曲を検索
     results = sp.recommendations(seed_genres=['j-pop'],  # 例としてジャンルをpopに設定
                                 target_danceability=predicted_attributes['danceability'],
                                 target_energy=predicted_attributes['energy'],

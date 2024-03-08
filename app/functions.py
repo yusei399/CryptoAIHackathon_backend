@@ -35,7 +35,11 @@ async def predict_features(file):
 
     # WAVファイルの読み込み
     sample_rate, wav_data = wavfile.read(temp_wav_path)
-    waveform = np.mean(wav_data, axis=1)  # ステレオからモノラルに変換
+    #waveform = np.mean(wav_data, axis=1)  # ステレオからモノラルに変換
+    if wav_data.ndim == 2:  # 2次元配列の場合（ステレオ）
+        waveform = np.mean(wav_data, axis=1)  # ステレオからモノラルに変換
+    else:  # 1次元配列の場合（モノラル）
+        waveform = wav_data  # そのまま使用
     waveform = waveform / np.iinfo(wav_data.dtype).max  # 正規化
 
     # 特徴量の抽出

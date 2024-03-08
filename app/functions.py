@@ -28,7 +28,8 @@ model_valence = load('model/valence_model.joblib')
 async def predict_features(file):
     file_contents = await file.read()
     # MP3からWAVへの変換
-    sound = AudioSegment.from_file(io.BytesIO(file_contents), format=file.filename.split('.')[-1])
+    #sound = AudioSegment.from_file(io.BytesIO(file_contents), format=file.filename.split('.')[-1])
+    sound = AudioSegment.from_file(io.BytesIO(file_contents), format="webm")
     temp_wav_path = 'temp_music_preview.wav'
     sound.export(temp_wav_path, format="wav")
 

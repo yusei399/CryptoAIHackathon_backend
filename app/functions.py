@@ -61,9 +61,9 @@ def predict_attributes(input_audio_features):
 def recommend_music(predicted_attributes):
     # 検索条件を設定
     market = "JP"  # 市場を指定（例：米国）
-    limit = 1  # 返される曲の数
+    limit = 5  # 返される曲の数
     
-    results = sp.recommendations(seed_genres=['j-pop'],  # 例としてジャンルをpopに設定
+    results = sp.recommendations(seed_genres=['j-pop','pop','rock','jazz'],  # 例としてジャンルをpopに設定
                                 target_danceability=predicted_attributes['danceability'],
                                 target_energy=predicted_attributes['energy'],
                                 target_valence=predicted_attributes['valence'],

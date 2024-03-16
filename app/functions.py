@@ -7,16 +7,23 @@ from pydub import AudioSegment
 import io
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from env import(CLIENT_ID, CLIENT_SECRET)
 from joblib import load
 import sklearn
+
+# カスタマイズされたセッションを作成
+session = requests.Session()
+retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[429, 500, 502, 503, 504])
+session.mount('https://', HTTPAdapter(max_retries=retries))
 
 # Spotify認証
 client_id = CLIENT_ID
 client_secret = CLIENT_SECRET
 
 credentials = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
-sp = spotipy.Spotify(client_credentials_manager=credentials)
+sp = spotipy.Spotify(client_credentials_manager=credentials, requests_session=session)
 
 # モデルのロード
 yamnet_model = hub.load('https://tfhub.dev/google/yamnet/1')
